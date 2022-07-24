@@ -1,4 +1,4 @@
-# expertis
+# Expertis 
 
 A college project.
 
