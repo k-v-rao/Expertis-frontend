@@ -63,14 +63,12 @@ class ShopOwnerDashboardScreenState extends State<ShopOwnerDashboardScreen> {
     });
     if (widget.shopId == null) {
       UserViewModel.getUser().then((value) => {
-            setState(() {
-              widget.shopId = value.shop!.first;
-              print(value.shop?.first);
-            })
+            widget.shopId = value.shop?.first,
+            shopViewModel.fetchSelectedShopDataApi(value.shop?.first ?? '')
           });
+    } else {
+      shopViewModel.fetchSelectedShopDataApi(widget.shopId ?? "");
     }
-
-    shopViewModel.fetchSelectedShopDataApi(widget.shopId ?? "");
   }
 
   Widget getFragment() {
@@ -79,7 +77,7 @@ class ShopOwnerDashboardScreenState extends State<ShopOwnerDashboardScreen> {
     } else if (selectedTab == 1) {
       return ServicesHomeScreen(shopId: widget.shopId);
     } else if (selectedTab == 2) {
-      return const ShopAppointmentsHomeScreen();
+      return ShopAppointmentsHomeScreen(shopId: widget.shopId);
     } else if (selectedTab == 3) {
       return ShopInfoScreen();
     }
@@ -150,7 +148,12 @@ class ShopOwnerDashboardScreenState extends State<ShopOwnerDashboardScreen> {
                 );
               case Status.ERROR:
                 String error = value.selectedShop.message.toString();
-                return Utils.findErrorPage(context, error);
+                return Center(
+                  child: Text(
+                    error,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                );
 
               case Status.COMPLETED:
                 ShopModel? shop = value.selectedShop.data;
@@ -194,7 +197,9 @@ class ShopOwnerDashboardScreenState extends State<ShopOwnerDashboardScreen> {
                                 ),
                                 8.width,
                                 Text(
-                                  shop?.isOpen == true ? "Open" : "Closed",
+                                  shop?.isOpen == true
+                                      ? "Open Now"
+                                      : "Closed Now",
                                   style: TextStyle(
                                     fontSize: 16,
                                   ),
@@ -211,7 +216,7 @@ class ShopOwnerDashboardScreenState extends State<ShopOwnerDashboardScreen> {
                         onPressed: () {
                           Beamer.of(context).beamToNamed(RoutesName.home);
                         },
-                      ).expand(flex: 1),
+                      ).center().expand(flex: 1),
                     ],
                   ),
                 );
