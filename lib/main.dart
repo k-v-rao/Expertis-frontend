@@ -14,6 +14,7 @@ import 'package:expertis/utils/BMConstants.dart';
 import 'package:expertis/utils/BMDataGenerator.dart';
 import 'package:expertis/view_model/appointment_list_view_model.dart';
 import 'package:expertis/view_model/categories_view_model.dart';
+import 'package:expertis/view_model/services/firebase_dynamic_link.dart';
 import 'package:expertis/view_model/shop_list_view_model.dart';
 import 'package:expertis/view_model/shop_view_model.dart';
 import 'package:flutter/material.dart';
@@ -22,16 +23,23 @@ import 'package:expertis/view_model/auth_view_model.dart';
 import 'package:expertis/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:beamer/beamer.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 AppStore appStore = AppStore();
 
 int currentIndex = 0;
 
 void main() async {
-  //region Entry Point
   Beamer.setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
   await initialize(aLocaleLanguageList: languageList());
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  //region Entry Point
 
   appStore.toggleDarkMode(value: getBoolAsync(isDarkModeOnPref));
 
@@ -51,8 +59,14 @@ void main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   final routerDelegate = BeamerDelegate(
     initialPath: RoutesName.splash,
     locationBuilder: BeamerLocationBuilder(
@@ -69,6 +83,12 @@ class MyApp extends StatelessWidget {
     ),
     // notFoundRedirectNamed: '/books',
   );
+
+  @override
+  void initState() {
+    DynamicLinksService.initDynamicLink(context);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
